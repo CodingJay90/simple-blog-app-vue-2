@@ -13,7 +13,7 @@
         v-model="tagsQuery"
       />
       <div
-        v-for="blog in handleTagsFilter(blogs)"
+        v-for="blog in handleFilter(blogs)"
         class="blogs-container"
         v-bind:key="blog._id"
       >
@@ -50,27 +50,24 @@ export default {
     const res = await axios.get("http://localhost:5000/api/v1/blog");
     this.blogs = res.data;
     this.isLoading = false;
-    // let arr = new Array();
-    // for (let i = 0; i < res.data.length; i++) {
-    //   for (let x = 0; x < res.data[i].tags?.length; x++) {
-    //     if (res.data[i].tags[x].includes(this.tagsQuery)) {
-    //       arr.push(res.data[i]);
-    //       console.log(arr);
-    //     }
-    //   }
-    // }
   },
   methods: {
     handleFilter: function (rows) {
+      if (this.tagsQuery.length) return this.handleTagsFilter(rows);
       return rows.filter(
-        (row) => row.title.toLowerCase().indexOf(this.searchQuery) > -1
+        (row) =>
+          row.title.toLowerCase().indexOf(this.searchQuery.toLowerCase()) > -1
       );
     },
     handleTagsFilter: function (data) {
       let arr = new Array();
       for (let i = 0; i < data.length; i++) {
         for (let x = 0; x < data[i].tags?.length; x++) {
-          if (data[i].tags[x].indexOf(this.tagsQuery) > -1) {
+          if (
+            data[i].tags[x]
+              .toLowerCase()
+              .indexOf(this.tagsQuery.toLowerCase()) > -1
+          ) {
             arr.push(data[i]);
           }
         }
