@@ -13,7 +13,7 @@
         v-model="tagsQuery"
       />
       <div
-        v-for="blog in handleFilter(blogs)"
+        v-for="blog in handleTagsFilter(blogs)"
         class="blogs-container"
         v-bind:key="blog._id"
       >
@@ -43,37 +43,43 @@ export default {
       blogs: [],
       isLoading: true,
       searchQuery: "",
-      tagsQuery: "javascript",
+      tagsQuery: "",
     };
   },
   async created() {
     const res = await axios.get("http://localhost:5000/api/v1/blog");
     this.blogs = res.data;
     this.isLoading = false;
-    // console.log(this.blogs);
-    // const filtered = res.data.map((i) =>
-    //   i.tags?.filter((x) => x === this.tagsQuery)
-    // );
-    // const filtered2 = res.data.some((i) => i.tags?.forEach((x) => x));
-    for (let i = 0; i < res.data.length; i++) {
-      for (let x = 0; x < res.data[i].tags?.length; x++) {
-        // console.log(res.data[i].tags[x]);
-        if (res.data[i].tags[x].includes(this.tagsQuery)) {
-          console.log(res.data[i]);
-        }
-      }
-    }
-    // const filLevel2 = filtered.map((i, index) =>
-    //   filtered[index]?.forEach((x) => console.log(x))
-    // );
-    // console.log(filtered);
-    // console.log(filtered2);
+    // let arr = new Array();
+    // for (let i = 0; i < res.data.length; i++) {
+    //   for (let x = 0; x < res.data[i].tags?.length; x++) {
+    //     if (res.data[i].tags[x].includes(this.tagsQuery)) {
+    //       arr.push(res.data[i]);
+    //       console.log(arr);
+    //     }
+    //   }
+    // }
   },
   methods: {
     handleFilter: function (rows) {
       return rows.filter(
         (row) => row.title.toLowerCase().indexOf(this.searchQuery) > -1
       );
+    },
+    handleTagsFilter: function (data) {
+      let arr = new Array();
+      for (let i = 0; i < data.length; i++) {
+        for (let x = 0; x < data[i].tags?.length; x++) {
+          if (data[i].tags[x].indexOf(this.tagsQuery) > -1) {
+            arr.push(data[i]);
+          }
+        }
+      }
+      const ids = arr.map((o) => o._id);
+      const filtered = arr.filter(
+        ({ _id }, index) => !ids.includes(_id, index + 1)
+      );
+      return filtered;
     },
   },
 };
